@@ -75,6 +75,51 @@ const productController = {
       res.status(500).json({ error: (error as Error).message });
     }
   },
+
+  simulatePurchase: async (req: Request, res: Response) => {
+  try {
+    const purchases: { id: number; quantity: number }[] = req.body;
+
+    if (!Array.isArray(purchases)) {
+      return res.status(400).json({ message: "El cuerpo debe ser un arreglo de productos" });
+    }
+
+    const results = [];
+
+    for (const purchase of purchases) {
+      const product = await Products.findByPk(purchase.id);
+
+      if (!product) {
+        results.push({ id: purchase.id, error: "Producto no encontrado" });
+        continue;
+      }
+
+      if (product.stock < purchase.quantity) {
+        results.push({ id: purchase.id, error: "Stock insuficiente" });
+        continue;
+      }
+
+      const newStock = product.stock - purchase.quantity;
+      const newStatus = newStock === 0 ? "inactive" : product.status;
+
+      await product.update({ stock: newStock, status: newStatus });
+
+      results.push({
+        id: purchase.id,
+        message: "Compra realizada exitosamente",
+        stock_restante: newStock,
+        status: newStatus
+      });
+    }
+
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+}
 };
+
+
+
 
 export default productController;

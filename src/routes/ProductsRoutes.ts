@@ -9,5 +9,6 @@ router.get("/products/:id", productsController.getProduct); // Obtener un produc
 router.put("/products/:id", productsController.updateProduct); // Actualizar un producto completamente
 router.delete("/products/:id", productsController.deleteProduct); // Eliminar un producto
 router.patch("/products/:id", productsController.partialUpdateProduct as any); // Actualizar parcialmente un producto
+router.post("/products/purchase", productsController.simulatePurchase as any); // Actualizar parcialmente un producto
 
 export default router;
